@@ -369,7 +369,7 @@ class Model(object):
                      bucket_width=None,
                      single_pass=False,
                      num_threads=None,
-                     sample_buffer_size=None,
+                     shuffle_buffer_size=None,
                      maximum_features_length=None,
                      maximum_labels_length=None):
     """See ``input_fn``."""
@@ -399,7 +399,7 @@ class Model(object):
           single_pass=single_pass,
           process_fn=process_fn,
           num_threads=num_threads,
-          shuffle_buffer_size=sample_buffer_size,
+          shuffle_buffer_size=shuffle_buffer_size,
           dataset_size=self._get_dataset_size(features_file),
           maximum_features_length=maximum_features_length,
           maximum_labels_length=maximum_labels_length,
@@ -427,7 +427,7 @@ class Model(object):
                bucket_width=None,
                single_pass=False,
                num_threads=None,
-               sample_buffer_size=None,
+               shuffle_buffer_size=None,
                maximum_features_length=None,
                maximum_labels_length=None):
     """Returns an input function.
@@ -447,7 +447,8 @@ class Model(object):
         from. ``None`` to not constrain batch formation.
       single_pass: If ``True``, makes a single pass over the training data.
       num_threads: The number of elements processed in parallel.
-      sample_buffer_size: The number of elements from which to sample.
+      shuffle_buffer_size: Shuffle this many consecutive examples from the
+        dataset.
       maximum_features_length: The maximum length or list of maximum lengths of
         the features sequence(s). ``None`` to not constrain the length.
       maximum_labels_length: The maximum length of the labels sequence.
@@ -477,7 +478,7 @@ class Model(object):
         bucket_width=bucket_width,
         single_pass=single_pass,
         num_threads=num_threads,
-        sample_buffer_size=sample_buffer_size,
+        shuffle_buffer_size=shuffle_buffer_size,
         maximum_features_length=maximum_features_length,
         maximum_labels_length=maximum_labels_length)
 
