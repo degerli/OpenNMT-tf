@@ -56,7 +56,6 @@ class Runner(object):
                config,
                seed=None,
                num_devices=1,
-               gpu_allow_growth=False,
                session_config=None,
                auto_config=False):
     """Initializes the runner parameters.
@@ -66,7 +65,6 @@ class Runner(object):
       config: The run configuration.
       seed: The random seed to set.
       num_devices: The number of devices (GPUs) to use for training.
-      gpu_allow_growth: Allow GPU memory to grow dynamically.
       session_config: ``tf.ConfigProto`` overrides.
       auto_config: If ``True``, use automatic configuration values defined by
         :obj:`model`.
@@ -92,9 +90,7 @@ class Runner(object):
 
     session_config_base = tf.ConfigProto(
         allow_soft_placement=True,
-        log_device_placement=False,
-        gpu_options=tf.GPUOptions(
-            allow_growth=gpu_allow_growth))
+        log_device_placement=False)
 
     # Disable layout optimizer for better conv1d performance, see:
     # https://github.com/tensorflow/tensorflow/issues/20309
