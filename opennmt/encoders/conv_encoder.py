@@ -33,15 +33,12 @@ class ConvEncoder(Encoder):
     self.dropout = dropout
     self.position_encoder = position_encoder
 
-  def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
+  def __call__(self, inputs, sequence_length=None, training=True):
     if self.position_encoder is not None:
       inputs = self.position_encoder(inputs)
 
     # Apply dropout to inputs.
-    inputs = tf.layers.dropout(
-        inputs,
-        rate=self.dropout,
-        training=mode == tf.estimator.ModeKeys.TRAIN)
+    inputs = tf.layers.dropout(inputs, rate=self.dropout, training=training)
 
     with tf.variable_scope("cnn_a"):
       cnn_a = self._cnn_stack(inputs)

@@ -13,13 +13,13 @@ class Encoder(object):
   """Base class for encoders."""
 
   @abc.abstractmethod
-  def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
+  def __call__(self, inputs, sequence_length=None, training=True):
     """Encodes an input sequence.
 
     Args:
       inputs: The inputs to encode of shape :math:`[B, T, ...]`.
       sequence_length: The length of each input with shape :math:`[B]`.
-      mode: A ``tf.estimator.ModeKeys`` mode.
+      training: Training mode.
 
     Returns:
       A tuple ``(outputs, state, sequence_length)``.
@@ -59,7 +59,7 @@ class SequentialEncoder(Encoder):
     self.states_reducer = states_reducer
     self.transition_layer_fn = transition_layer_fn
 
-  def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
+  def __call__(self, inputs, sequence_length=None, training=True):
     encoder_state = []
 
     for i, encoder in enumerate(self.encoders):
@@ -69,10 +69,10 @@ class SequentialEncoder(Encoder):
             inputs = self.transition_layer_fn[i - 1](inputs)
           else:
             inputs = self.transition_layer_fn(inputs)
-        inputs, state, sequence_length = encoder.encode(
+        inputs, state, sequence_length = encoder(
             inputs,
             sequence_length=sequence_length,
-            mode=mode)
+            training=training)
         encoder_state.append(state)
 
     return (
@@ -137,7 +137,7 @@ class ParallelEncoder(Encoder):
     self.combined_output_layer_fn = combined_output_layer_fn
     self.share_parameters = share_parameters
 
-  def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
+  def __call__(self, inputs, sequence_length=None, training=True):
     all_outputs = []
     all_states = []
     all_sequence_lengths = []
@@ -156,10 +156,10 @@ class ParallelEncoder(Encoder):
           encoder_inputs = inputs
           length = sequence_length
 
-        outputs, state, length = encoder.encode(
+        outputs, state, length = encoder(
             encoder_inputs,
             sequence_length=length,
-            mode=mode)
+            training=training)
 
         if self.outputs_layer_fn is not None:
           if isinstance(self.outputs_layer_fn, list):

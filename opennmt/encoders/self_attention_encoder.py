@@ -46,8 +46,7 @@ class SelfAttentionEncoder(Encoder):
     self.relu_dropout = relu_dropout
     self.position_encoder = position_encoder
 
-  def encode(self, inputs, sequence_length=None, mode=tf.estimator.ModeKeys.TRAIN):
-    training = mode == tf.estimator.ModeKeys.TRAIN
+  def __call__(self, inputs, sequence_length=None, training=True):
     inputs *= self.num_units**0.5
     if self.position_encoder is not None:
       inputs = self.position_encoder(inputs)
