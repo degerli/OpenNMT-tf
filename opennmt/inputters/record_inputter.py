@@ -31,7 +31,7 @@ class SequenceRecordInputter(Inputter):
     first_record = next(tf.python_io.tf_record_iterator(data_file))
     first_record = tf.train.Example.FromString(first_record)
     shape = first_record.features.feature["shape"].int64_list.value
-    self.input_depth = shape[-1]
+    self._input_depth = shape[-1]
     return tf.data.TFRecordDataset(data_file)
 
   def get_dataset_size(self, data_file):
@@ -39,7 +39,7 @@ class SequenceRecordInputter(Inputter):
 
   def _get_receiver_tensors(self):
     return {
-        "tensor": tf.placeholder(self.dtype, shape=(None, None, self.input_depth)),
+        "tensor": tf.placeholder(self._dtype, shape=(None, None, self._input_depth)),
         "length": tf.placeholder(tf.int32, shape=(None,))
     }
 
@@ -52,17 +52,17 @@ class SequenceRecordInputter(Inputter):
       raise ValueError("Missing element")
     element = tf.parse_single_example(element, features={
         "shape": tf.VarLenFeature(tf.int64),
-        "values": tf.VarLenFeature(self.dtype)
+        "values": tf.VarLenFeature(self._dtype)
     })
     values = element["values"].values
     shape = tf.cast(element["shape"].values, tf.int32)
     tensor = tf.reshape(values, shape)
-    tensor.set_shape([None, self.input_depth])
+    tensor.set_shape([None, self._input_depth])
     features["length"] = tf.shape(tensor)[0]
     features["tensor"] = tensor
     return features
 
-  def __call__(self, features, training=True):
+  def _call(self, features, training=True):
     return features["tensor"]
 
 

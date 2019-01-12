@@ -222,6 +222,19 @@ class InputterTest(tf.test.TestCase):
       self.assertAllEqual([[1, 5, 4, 7]], features["ids"])
       self.assertAllEqual([[5, 4, 7, 2]], features["ids_out"])
 
+  def testWordEmbedderSharing(self):
+    vocab_file = self._makeTextFile(
+        "vocab.txt", ["<blank>", "<s>", "</s>", "the", "world", "hello", "toto"])
+    source = text_inputter.WordEmbedder(embedding_size=10)
+    target = text_inputter.WordEmbedder(embedding_size=10)
+    target.is_target = True
+    source.initialize({"vocabulary": vocab_file})
+    target.initialize({"vocabulary": vocab_file})
+    source.build()
+    target.build(reuse_from=source)
+    self.assertEqual(source.embeddings, target.embeddings)
+    self.assertTrue(target.is_target)
+
   def testWordEmbedderWithPretrainedEmbeddings(self):
     data_file = self._makeTextFile("data.txt", ["hello world !"])
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
